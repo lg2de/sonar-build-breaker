@@ -27,4 +27,5 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
+        name: sonar-build-breaker-plugin
         path: target/sonar-build-breaker-plugin*.jar
