@@ -23,4 +23,8 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -e clean package -DbuildVersion=789
+      run: mvn -e clean package -DbuildVersion=${{ github.GITHUB_RUN_NUMBER }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        path: target/sonar-build-breaker-plugin*.jar
