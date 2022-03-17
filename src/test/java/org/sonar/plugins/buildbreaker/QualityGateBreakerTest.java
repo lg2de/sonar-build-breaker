@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.Lists;
@@ -37,10 +38,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonarqube.ws.Ce.Task;
 import org.sonarqube.ws.Ce.TaskResponse;
@@ -57,9 +56,7 @@ import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygates.ProjectStatusRequest;
 import org.sonarqube.ws.client.qualitygates.QualitygatesService;
 
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore("javax.net.ssl.*")
-@PrepareForTest(TaskResponse.class)
+@RunWith(MockitoJUnitRunner.class)
 public final class QualityGateBreakerTest {
   private static final String TEST_TASK_ID = "Abc123";
   private static final String TEST_ANALYSIS_ID = "Def456";
@@ -148,19 +145,22 @@ public final class QualityGateBreakerTest {
     WsConnector wsConnector = mock(WsConnector.class);
     WsResponse wsResponse = mock(WsResponse.class);
     // yuck
-    PowerMockito.mockStatic(TaskResponse.class);
-    TaskResponse taskResponse = mock(TaskResponse.class);
-    Task task = Task.newBuilder().setStatus(TaskStatus.IN_PROGRESS).build();
+    try (MockedStatic<TaskResponse> staticTaskResponse = mockStatic(TaskResponse.class)) {
+      TaskResponse taskResponse = mock(TaskResponse.class);
+      Task task = Task.newBuilder().setStatus(TaskStatus.IN_PROGRESS).build();
 
-    when(wsClient.wsConnector()).thenReturn(wsConnector);
-    when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
-    when(TaskResponse.parseFrom(any(InputStream.class))).thenReturn(taskResponse);
-    when(taskResponse.getTask()).thenReturn(task);
+      when(wsClient.wsConnector()).thenReturn(wsConnector);
+      when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
+      staticTaskResponse
+          .when(() -> TaskResponse.parseFrom((InputStream) null))
+          .thenReturn(taskResponse);
+      when(taskResponse.getTask()).thenReturn(task);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Report processing is taking longer than the configured wait limit.");
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Report processing is taking longer than the configured wait limit.");
 
-    new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+      new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+    }
   }
 
   @Test
@@ -172,19 +172,22 @@ public final class QualityGateBreakerTest {
     WsConnector wsConnector = mock(WsConnector.class);
     WsResponse wsResponse = mock(WsResponse.class);
     // yuck
-    PowerMockito.mockStatic(TaskResponse.class);
-    TaskResponse taskResponse = mock(TaskResponse.class);
-    Task task = Task.newBuilder().setStatus(TaskStatus.PENDING).build();
+    try (MockedStatic<TaskResponse> staticTaskResponse = mockStatic(TaskResponse.class)) {
+      TaskResponse taskResponse = mock(TaskResponse.class);
+      Task task = Task.newBuilder().setStatus(TaskStatus.PENDING).build();
 
-    when(wsClient.wsConnector()).thenReturn(wsConnector);
-    when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
-    when(TaskResponse.parseFrom(any(InputStream.class))).thenReturn(taskResponse);
-    when(taskResponse.getTask()).thenReturn(task);
+      when(wsClient.wsConnector()).thenReturn(wsConnector);
+      when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
+      staticTaskResponse
+          .when(() -> TaskResponse.parseFrom((InputStream) null))
+          .thenReturn(taskResponse);
+      when(taskResponse.getTask()).thenReturn(task);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Report processing is taking longer than the configured wait limit.");
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Report processing is taking longer than the configured wait limit.");
 
-    new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+      new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+    }
   }
 
   @Test
@@ -196,19 +199,22 @@ public final class QualityGateBreakerTest {
     WsConnector wsConnector = mock(WsConnector.class);
     WsResponse wsResponse = mock(WsResponse.class);
     // yuck
-    PowerMockito.mockStatic(TaskResponse.class);
-    TaskResponse taskResponse = mock(TaskResponse.class);
-    Task task = Task.newBuilder().setStatus(TaskStatus.FAILED).build();
+    try (MockedStatic<TaskResponse> staticTaskResponse = mockStatic(TaskResponse.class)) {
+      TaskResponse taskResponse = mock(TaskResponse.class);
+      Task task = Task.newBuilder().setStatus(TaskStatus.FAILED).build();
 
-    when(wsClient.wsConnector()).thenReturn(wsConnector);
-    when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
-    when(TaskResponse.parseFrom(any(InputStream.class))).thenReturn(taskResponse);
-    when(taskResponse.getTask()).thenReturn(task);
+      when(wsClient.wsConnector()).thenReturn(wsConnector);
+      when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
+      staticTaskResponse
+          .when(() -> TaskResponse.parseFrom((InputStream) null))
+          .thenReturn(taskResponse);
+      when(taskResponse.getTask()).thenReturn(task);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Report processing did not complete successfully: FAILED");
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Report processing did not complete successfully: FAILED");
 
-    new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+      new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+    }
   }
 
   @Test
@@ -220,19 +226,22 @@ public final class QualityGateBreakerTest {
     WsConnector wsConnector = mock(WsConnector.class);
     WsResponse wsResponse = mock(WsResponse.class);
     // yuck
-    PowerMockito.mockStatic(TaskResponse.class);
-    TaskResponse taskResponse = mock(TaskResponse.class);
-    Task task = Task.newBuilder().setStatus(TaskStatus.CANCELED).build();
+    try (MockedStatic<TaskResponse> staticTaskResponse = mockStatic(TaskResponse.class)) {
+      TaskResponse taskResponse = mock(TaskResponse.class);
+      Task task = Task.newBuilder().setStatus(TaskStatus.CANCELED).build();
 
-    when(wsClient.wsConnector()).thenReturn(wsConnector);
-    when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
-    when(TaskResponse.parseFrom(any(InputStream.class))).thenReturn(taskResponse);
-    when(taskResponse.getTask()).thenReturn(task);
+      when(wsClient.wsConnector()).thenReturn(wsConnector);
+      when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
+      staticTaskResponse
+          .when(() -> TaskResponse.parseFrom((InputStream) null))
+          .thenReturn(taskResponse);
+      when(taskResponse.getTask()).thenReturn(task);
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Report processing did not complete successfully: CANCELED");
+      thrown.expect(IllegalStateException.class);
+      thrown.expectMessage("Report processing did not complete successfully: CANCELED");
 
-    new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+      new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+    }
   }
 
   @Test
@@ -244,19 +253,22 @@ public final class QualityGateBreakerTest {
     WsConnector wsConnector = mock(WsConnector.class);
     WsResponse wsResponse = mock(WsResponse.class);
     // yuck
-    PowerMockito.mockStatic(TaskResponse.class);
-    TaskResponse taskResponse = mock(TaskResponse.class);
-    Task task =
-        Task.newBuilder().setStatus(TaskStatus.SUCCESS).setAnalysisId(TEST_ANALYSIS_ID).build();
+    try (MockedStatic<TaskResponse> staticTaskResponse = mockStatic(TaskResponse.class)) {
+      TaskResponse taskResponse = mock(TaskResponse.class);
+      Task task =
+          Task.newBuilder().setStatus(TaskStatus.SUCCESS).setAnalysisId(TEST_ANALYSIS_ID).build();
 
-    when(wsClient.wsConnector()).thenReturn(wsConnector);
-    when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
-    when(TaskResponse.parseFrom(any(InputStream.class))).thenReturn(taskResponse);
-    when(taskResponse.getTask()).thenReturn(task);
+      when(wsClient.wsConnector()).thenReturn(wsConnector);
+      when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
+      staticTaskResponse
+          .when(() -> TaskResponse.parseFrom((InputStream) null))
+          .thenReturn(taskResponse);
+      when(taskResponse.getTask()).thenReturn(task);
 
-    String analysisId =
-        new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
-    assertEquals(TEST_ANALYSIS_ID, analysisId);
+      String analysisId =
+          new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+      assertEquals(TEST_ANALYSIS_ID, analysisId);
+    }
   }
 
   @Test
@@ -268,16 +280,19 @@ public final class QualityGateBreakerTest {
     WsConnector wsConnector = mock(WsConnector.class);
     WsResponse wsResponse = mock(WsResponse.class);
     // yuck
-    PowerMockito.mockStatic(TaskResponse.class);
+    try (MockedStatic<TaskResponse> staticTaskResponse = mockStatic(TaskResponse.class)) {
 
-    when(wsClient.wsConnector()).thenReturn(wsConnector);
-    when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
-    when(TaskResponse.parseFrom(any(InputStream.class))).thenThrow(new IOException());
+      when(wsClient.wsConnector()).thenReturn(wsConnector);
+      when(wsConnector.call(any(WsRequest.class))).thenReturn(wsResponse);
+      staticTaskResponse
+          .when(() -> TaskResponse.parseFrom((InputStream) null))
+          .thenThrow(new IOException());
 
-    thrown.expect(IllegalStateException.class);
-    thrown.expectCause(isA(IOException.class));
+      thrown.expect(IllegalStateException.class);
+      thrown.expectCause(isA(IOException.class));
 
-    new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+      new QualityGateBreaker(fileSystem, config).getAnalysisId(wsClient, TEST_TASK_ID);
+    }
   }
 
   @Test
