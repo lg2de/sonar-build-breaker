@@ -23,7 +23,7 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn -e clean package -DbuildVersion=${{ github.GITHUB_RUN_NUMBER }}
+      run: mvn -e clean package -DbuildVersion=${{ github.run_number }}
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
