@@ -57,7 +57,7 @@
   <properties>
     <license.owner>${project.organization.name}</license.owner>
     <license.mailto>${project.organization.url}</license.mailto>
-    <sonar.apiVersion>7.3</sonar.apiVersion>
+    <sonar.apiVersion>8.9.7.52159</sonar.apiVersion>
     <jdk.min.version>1.8</jdk.min.version>
     <sonar.pluginKey>buildbreaker</sonar.pluginKey>
     <sonar.pluginClass>org.sonar.plugins.buildbreaker.BuildBreakerPlugin</sonar.pluginClass>
