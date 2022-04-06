@@ -17,14 +17,20 @@ This repository is deprecated, no future releases will happen. You are advised t
 | 5.3 - 5.4         | 2.0, 2.1, 2.2 |
 | 5.5 - 7.2         | 2.1, 2.2 |
 | 7.3 - 8.7         | 2.3, 2.3.1 |
-| 8.8 -             | [Use the built-in property](https://docs.sonarqube.org/latest/analysis/branch-pr-analysis-overview/#header-1) |
+| 8.8 - 8.9         | [Use the built-in property](https://docs.sonarqube.org/8.8/analysis/branch-pr-analysis-overview/#header-1) |
+| 9.0 -             | [Use the built-in property](https://docs.sonarqube.org/9.0/analysis/ci-integration-overview/#header-1) |
 
 ## Installation
+
+### Built-in functionality
+
+From sonarqube.org:
+"... For other CIs, you can use the `sonar.qualitygate.wait=true` analysis parameter in your configuration file. Using the sonar.qualitygate.wait parameter forces the analysis step to poll the SonarQube instance and wait for the Quality Gate status. ..."
 
 ### Marketplace
 
 Since the release of SonarQube 8.8, the plugin is no longer in the marketplace because
-SonarQube introduced a [built-in property](https://docs.sonarqube.org/latest/analysis/branch-pr-analysis-overview/#header-1) to break builds.
+SonarQube introduced a [built-in property](https://docs.sonarqube.org/8.8/analysis/branch-pr-analysis-overview/#header-1) to break builds.
 
 ### Manual installation
 
